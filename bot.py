@@ -1,12 +1,17 @@
-from typing import Optional, Callable
 import discord
 import platform
 import requests
 import time
+import os
+
+from dotenv import load_dotenv
+from typing import Optional, Callable
 from colorama import Back, Fore, Style
 from datetime import datetime
 from discord.ext import commands
 from discord import ui
+
+load_dotenv()
 
 client = commands.Bot(command_prefix="!", intents=discord.Intents.all())
 
@@ -201,4 +206,4 @@ async def prikazUspech(ctx, title: str, description: str):
     embed = discord.Embed(title=title, description=description, colour=discord.Colour(3715072))
     await ctx.reply(embed=embed)
 
-client.run("MTEzMTgxMzA0MTczOTE1MzUwOQ.GaNJDT.DTuuPWHMTba_NFVYg_QIFJDChO_4_H_MwsFHhc")
+client.run(os.getenv("TOKEN"))
