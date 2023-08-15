@@ -10,6 +10,7 @@ from colorama import Back, Fore, Style
 from datetime import datetime
 from discord.ext import commands
 from discord import ui
+from keep_alive import keep_alive
 
 load_dotenv()
 
@@ -207,4 +208,5 @@ async def prikazUspech(ctx, title: str, description: str):
     embed = discord.Embed(title=title, description=description, colour=discord.Colour(3715072))
     await ctx.reply(embed=embed)
 
+keep_alive()
 client.run(os.getenv("TOKEN"))
