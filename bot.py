@@ -24,8 +24,8 @@ async def on_ready():
     print(prefix + " Verze Python: " + Fore.YELLOW + platform.python_version())
     
     # nastavení aktivity na "Sleduje FakeTube.cz"
-    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="FakeTube.cz"))
-    print(prefix + " Aktivita nastavena na:" + Fore.YELLOW + " Sleduje FakeTube.cz")
+    await client.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=os.getenv("AKTIVITA_STAV")))
+    print(prefix + " Aktivita nastavena na:" + Fore.YELLOW + " " + os.getenv("AKTIVITA_TEXT"))
     synced = await client.tree.sync()
     print(prefix + f" {len(synced)} příkazy aplikace synchronizovány")
 
@@ -33,14 +33,15 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-    channel_id = 1131675869283352586  # ID kanálu, kam se má uvítací embed odeslat
+    if client.get_guild(os.getenv("SERVER_ID")).get_channel(os.getenv("KANAL_VITEJ")):
+        channel_id = os.getenv("KANAL_VITEJ")  # ID kanálu, kam se má uvítací embed odeslat
 
-    embed = discord.Embed(title=f"Vítej {member.display_name}", description=f"📥 Uživatel **{member.display_name}** se připojil na server", colour=discord.Colour(3715072))
-    embed.set_footer(text=f"Je nás tu celkem {client.get_guild(1079379909618700298).member_count}")
+        embed = discord.Embed(title=f"Vítej {member.display_name}", description=f"📥 Uživatel **{member.display_name}** se připojil na server", colour=discord.Colour(3715072))
+        embed.set_footer(text=f"Je nás tu celkem {client.get_guild(os.getenv('KANAL_VITEJ')).member_count}")
 
-    channel = client.get_channel(channel_id)
-    if channel is not None:
-        await channel.send(embed=embed)
+        channel = client.get_channel(channel_id)
+        if channel is not None:
+            await channel.send(embed=embed)
 
 @client.hybrid_command(description="Zobrazí informace o videu na FakeTube")
 async def video(ctx, kod: str):
@@ -80,7 +81,7 @@ async def video(ctx, kod: str):
 @client.hybrid_command(description="Zobrazí pravidla serveru")
 async def pravidla(ctx):
     """Odeslání pravidel discord serveru do aktuálního kanálu"""
-    if(ctx.message.author.id == 740679608923586624):
+    if(ctx.message.author.id == os.getenv("AUTOR_ID")):
         embed = discord.Embed(title="Pravidla serveru", description="Toto jsou pravidla discord serveru projektu FakeTube. Všichni uživatelé, bez ohledu na jejich role, se svou přítomností zavazují je dodržovat.", colour=discord.Colour(47087))
         embed.add_field(name="1. Respekt k ostatním členům", value="Buďte zdvořilí a respektujte názory a přesvědčení ostatních. Nemocneťte, urážejte ani nesnažte se ostatní provokovat.", inline=False)
         embed.add_field(name="2. Vhodný obsah", value="Neposílejte, nezveřejňujte ani nesdílejte obsah, který je násilný, urážlivý, nevhodný nebo porušuje autorská práva.", inline=False)
@@ -98,7 +99,7 @@ async def pravidla(ctx):
 @client.hybrid_command(description="Zobrazí důležité odkazy")
 async def odkazy(ctx):
     """Odeslání důležitých odkazů do aktuálního kanálu"""
-    if(ctx.message.author.id == 740679608923586624):
+    if(ctx.message.author.id == os.getenv("AUTOR_ID")):
         embed = discord.Embed(title="Důležité odkazy", description="Tady najdete všechny důležité odkazy projektu FakeTube", colour=discord.Colour(47087))
         embed.add_field(name="Webová stránka", value="https://faketube.cz", inline=False)
         embed.add_field(name="FakeTube Wiki", value="https://wiki.faketube.cz", inline=False)
@@ -116,7 +117,7 @@ async def pomoc(ctx):
 @client.hybrid_command(aliases=['oznam'], description="Odešle oznámení do kanálu")
 async def oznameni(ctx, kanal_id: int, zprava: str):
     # Kontrola, zda autor je autorem bota nebo má určité ID
-    allowed_ids = [740679608923586624] # ID členů, kteří mají povolení
+    allowed_ids = [os.getenv("AUTOR_ID"), os.getenv("SPRAVCI_ID")] # ID členů, kteří mají povolení
 
     if ctx.author.id not in allowed_ids:
         await bezOpravneny(ctx=ctx)
@@ -144,7 +145,7 @@ async def navrh(ctx, category, text):
         return
     
     if category in ('přijmout', 'zamítnout'):
-        allowed_role = ctx.guild.get_role(1131510254409093141)
+        allowed_role = ctx.guild.get_role(os.getenv("ROLE_TYM"))
         if allowed_role is None or allowed_role not in ctx.author.roles:
             await prikazChyba(ctx=ctx, title="Neorpávněné použití", description="Nemáte oprávnění použít tuto kategorii příkazu.")
             return
@@ -153,9 +154,9 @@ async def navrh(ctx, category, text):
 
     # Zde určete, kam se má zaslat návrh.
     if category == "projekt":
-        channel = client.get_channel(1131510319274004562)
+        channel = client.get_channel(os.getenv("KANAL_PROJEKT"))
     elif category == "discord":
-        channel = client.get_channel(1131510321106931833)
+        channel = client.get_channel(os.getenv("KANAL_DISCORD"))
     elif category == "přijmout":
         await prijmout_navrh(ctx, message_id=text)
     elif category == "zamítnout":
