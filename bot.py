@@ -38,10 +38,9 @@ async def on_ready():
 
 @client.event
 async def on_member_join(member):
-  if client.get_guild(os.getenv("SERVER_ID")).get_channel(
-      os.getenv("KANAL_VITEJ")):
-    channel_id = os.getenv(
-      "KANAL_VITEJ")  # ID kanálu, kam se má uvítací embed odeslat
+  if client.get_guild(int(os.getenv("SERVER_ID"))).get_channel(
+      int(os.getenv("KANAL_VITEJ"))):
+    channel_id = int(os.getenv("KANAL_VITEJ"))  # ID kanálu, kam se má uvítací embed odeslat
 
     embed = discord.Embed(
       title=f"Vítej {member.display_name}",
@@ -49,7 +48,7 @@ async def on_member_join(member):
       colour=discord.Colour(3715072))
     embed.set_footer(
       text=
-      f"Je nás tu celkem {client.get_guild(os.getenv('KANAL_VITEJ')).member_count}"
+      f"Je nás tu celkem {client.get_guild(int(os.getenv('KANAL_VITEJ'))).member_count}"
     )
 
     channel = client.get_channel(channel_id)
@@ -103,7 +102,7 @@ async def video(ctx, kod: str):
 @client.hybrid_command(description="Zobrazí pravidla serveru")
 async def pravidla(ctx):
   """Odeslání pravidel discord serveru do aktuálního kanálu"""
-  if (ctx.message.author.id == os.getenv("AUTOR_ID")):
+  if (ctx.message.author.id == int(os.getenv("AUTOR_ID"))):
     embed = discord.Embed(
       title="Pravidla serveru",
       description=
@@ -163,7 +162,7 @@ async def pravidla(ctx):
 @client.hybrid_command(description="Zobrazí důležité odkazy")
 async def odkazy(ctx):
   """Odeslání důležitých odkazů do aktuálního kanálu"""
-  if (ctx.message.author.id == os.getenv("AUTOR_ID")):
+  if (ctx.message.author.id == int(os.getenv("AUTOR_ID"))):
     embed = discord.Embed(
       title="Důležité odkazy",
       description="Tady najdete všechny důležité odkazy projektu FakeTube",
@@ -265,7 +264,7 @@ async def navrh(ctx, category, text):
     return
 
   if category in ('přijmout', 'zamítnout'):
-    allowed_role = ctx.guild.get_role(os.getenv("ROLE_TYM"))
+    allowed_role = ctx.guild.get_role(int(os.getenv("ROLE_TYM")))
     if allowed_role is None or allowed_role not in ctx.author.roles:
       await prikazChyba(
         ctx=ctx,
@@ -277,9 +276,9 @@ async def navrh(ctx, category, text):
 
   # Zde určete, kam se má zaslat návrh.
   if category == "projekt":
-    channel = client.get_channel(os.getenv("KANAL_PROJEKT"))
+    channel = client.get_channel(int(os.getenv("KANAL_PROJEKT")))
   elif category == "discord":
-    channel = client.get_channel(os.getenv("KANAL_DISCORD"))
+    channel = client.get_channel(int(os.getenv("KANAL_DISCORD")))
   elif category == "přijmout":
     await prijmout_navrh(ctx, message_id=text)
   elif category == "zamítnout":
@@ -310,7 +309,7 @@ async def zamitnout_navrh(ctx, message_id):
 
 async def schvalit_zamitnout_navrh(ctx, message_id, status, status_text,
                                    status_color):
-  if ctx.channel.id not in (1131510319274004562, 1131510321106931833):
+  if ctx.channel.id not in (int(os.getenv("KANAL_PROJEKT")), int(os.getenv("KANAL_DISCORD"))):
     await prikazChyba(
       ctx=ctx,
       title="Nesprávné použití",
